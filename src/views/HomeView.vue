@@ -29,8 +29,14 @@
   </div>
 
   <!-- props -->
+  <hr />
   <h2>using props in setup</h2>
-  <PostList :posts="posts" />
+  <PostList v-if="showPosts" :posts="posts" />
+
+  <!-- lifecycle hooks -->
+  <hr />
+  <button @click="showPosts = !showPosts">hide or show posts</button>
+  <button @click="posts.pop()">delete a posts</button>
 </template>
 
 <script>
@@ -119,9 +125,35 @@ export default {
 
     // props
     const posts = ref([
-      { title: "welcome to the blog", body: "lorem ipsum", id: 1 },
+      {
+        title: "welcome to the blog",
+        body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum alias facilis accusamus iste, quidem fuga, assumenda perspiciatis porro quos, harum reiciendis atque a ratione. Dolor mollitia expedita non praesentium voluptates laborum esse similique commodi quisquam eligendi? Iusto, impedit quae aliquam quia accusantium magnam commodi nisi perspiciatis voluptates. Nobis laboriosam accusamus ratione recusandae consequuntur praesentium neque libero expedita, rerum sequi dolorum architecto eveniet voluptas numquam, officia exercitationem! Consequatur ipsa harum, molestiae dolorem aliquam deleniti reprehenderit unde voluptas ea suscipit sint neque quas ex praesentium assumenda, distinctio est incidunt nesciunt alias eius sit, delectus sequi? Maxime quis dolor placeat laboriosam atque totam obcaecati dolore architecto, accusamus labore quasi a ex tempora tempore ut est voluptatum consectetur earum in officia et praesentium? Delectus maiores tenetur numquam doloribus iure odit explicabo, reprehenderit distinctio nemo hic fuga at nulla error iusto commodi nobis vero. Unde odit fugit culpa ut, exercitationem aspernatur dolorum id architecto totam ratione explicabo qui quia amet necessitatibus esse, neque mollitia numquam voluptatum itaque dolore repellat ex ad deserunt? Quia ut laudantium facere et perferendis praesentium aut maiores explicabo, accusamus at animi recusandae harum repudiandae quis sint delectus aliquid illo nulla expedita similique totam, libero minima! Aspernatur dolor soluta mollitia impedit maxime. Praesentium facilis excepturi eos exercitationem? Libero assumenda tempore eius suscipit consequatur culpa debitis labore iure magni enim beatae molestias quas vel non, ea expedita ad! Eius fugiat explicabo maxime minus, reprehenderit ex soluta velit porro quaerat dolore dolorem voluptatem autem recusandae modi culpa enim molestias molestiae ratione eum totam maiores fuga possimus doloribus quos. Dolorem iusto sunt impedit architecto nam praesentium odit? Ullam, rem soluta maiores odit accusamus numquam error maxime unde suscipit fuga a consequuntur at obcaecati quod ducimus, quas non repellendus corrupti incidunt sit iste, deserunt quidem animi. Ipsum voluptatem molestias in magnam explicabo illo, eligendi adipisci commodi.",
+        id: 1,
+      },
       { title: "top 5 css tips", body: "lorem ipsum", id: 2 },
     ]);
+
+    // lifecycle hooks
+    const showPosts = ref(true);
+
+    // fetching data in setup
+    const postsDb = ref([]);
+    const error = ref(null);
+
+    const load = async () => {
+      try {
+        let data = await fetch("http://localhost:3000/posts");
+        console.log(data);
+        if (!data.ok) {
+          throw Error("no data available");
+        }
+        postsDb.value = data.json();
+      } catch (err) {
+        error.value = err.message;
+        console.log(error.value);
+      }
+    };
+    load();
 
     return {
       name,
@@ -139,6 +171,9 @@ export default {
       search,
       matchingNames,
       stopWatching,
+      posts,
+      showPosts,
+      postsDb,
     };
   },
 };
